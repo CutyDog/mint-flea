@@ -1,0 +1,25 @@
+FROM golang:1.24 AS build
+
+RUN go install github.com/air-verse/air@v1.52.3
+
+# Set up directory structure to match local
+WORKDIR /mint-flea
+
+# Copy proto files (including generated code from host)
+COPY proto /mint-flea/proto
+
+# Initialize proto module
+WORKDIR /mint-flea/proto
+RUN go mod download
+
+# Copy gateway service files
+WORKDIR /mint-flea/services/gateway
+COPY services/gateway/go.mod services/gateway/go.sum ./
+
+# Copy all service files before go mod download
+COPY services/gateway/ ./
+
+# Download dependencies and tidy
+RUN go mod download && go mod tidy
+
+CMD ["air", "-c", ".air.toml"]

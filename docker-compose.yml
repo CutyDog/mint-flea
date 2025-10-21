@@ -1,0 +1,50 @@
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: ./services/gateway/Dockerfile.dev
+    ports:
+      - 8080:8080
+    volumes:
+      - ./services/gateway:/mint-flea/services/gateway
+      - ./proto:/mint-flea/proto
+    depends_on:
+      - account
+    environment:
+      - PORT=8080
+      - ACCOUNT_SERVICE_ADDR=account:9090
+  account:
+    build:
+      context: .
+      dockerfile: ./services/account/Dockerfile.dev
+    ports:
+      - 9090:9090
+    volumes:
+      - ./services/account:/mint-flea/services/account
+      - ./proto:/mint-flea/proto
+    depends_on:
+      - account-db
+    environment:
+      - PORT=9090
+      - DB_HOST=account-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=account
+  account-db:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=account
+    ports:
+      - 5432:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - account-db:/var/lib/postgresql/data
+volumes:
+  account-db:
