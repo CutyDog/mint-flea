@@ -1,8 +1,8 @@
-resource "google_artifact_registry_repository" "account_service_server" {
+resource "google_artifact_registry_repository" "server" {
   project       = var.project_id
   location      = "asia-northeast1"
-  repository_id = "account-service-server"
-  description   = "Account Service Server"
+  repository_id = "${var.service}-server"
+  description   = "${var.service} server"
   format        = "DOCKER"
 
   cleanup_policy_dry_run = false
@@ -30,11 +30,11 @@ resource "google_artifact_registry_repository" "account_service_server" {
   }
 }
 
-resource "google_artifact_registry_repository" "account_service_migrate" {
+resource "google_artifact_registry_repository" "migrate" {
   project       = var.project_id
   location      = "asia-northeast1"
-  repository_id = "account-service-migrate"
-  description   = "Account Service Migrate"
+  repository_id = "${var.service}-migrate"
+  description   = "${var.service} migrate"
   format        = "DOCKER"
 
   cleanup_policy_dry_run = false
@@ -62,11 +62,11 @@ resource "google_artifact_registry_repository" "account_service_migrate" {
   }
 }
 
-resource "google_artifact_registry_repository" "account_service_seed" {
+resource "google_artifact_registry_repository" "seed" {
   project       = var.project_id
   location      = "asia-northeast1"
-  repository_id = "account-service-seed"
-  description   = "Account Service Seed"
+  repository_id = "${var.service}-seed"
+  description   = "${var.service} seed"
   format        = "DOCKER"
 
   cleanup_policy_dry_run = false
