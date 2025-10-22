@@ -5,13 +5,13 @@ module "storage" {
   project_id = var.project_id
 }
 
-# module "firebase" {
-#   source             = "../../modules/firebase"
+module "firebase" {
+  source             = "../../modules/firebase"
 
-#   project_id         = var.project_id
-#   storage_bucket_id  = module.storage.google_storage_bucket.storage.name
-#   auth_client_secret = var.auth_client_secret
-# }
+  project_id         = var.project_id
+  storage_bucket_id  = module.storage.google_storage_bucket.storage.name
+  auth_client_secret = var.auth_client_secret
+}
 
 # module "secret" {
 #   source     = "../../modules/secret"
