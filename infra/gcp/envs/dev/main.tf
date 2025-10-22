@@ -13,19 +13,19 @@ module "firebase" {
   auth_client_secret = var.auth_client_secret
 }
 
-# module "secret" {
-#   source     = "../../modules/secret"
+module "secret" {
+  source     = "../../modules/secret"
 
-#   project_id = var.project_id
-#   neon_account_database_url = var.neon_account_database_url
-#   github_token = var.github_token
-# }
+  project_id = var.project_id
+  neon_account_database_url = var.neon_account_database_url
+  github_token = var.github_token
+}
 
-# module "registry" {
-#   source     = "../../modules/registry"
+module "registry" {
+  source     = "../../modules/registry"
 
-#   project_id = var.project_id
-# }
+  project_id = var.project_id
+}
 
 # module "server" {
 #   source     = "../../modules/server"
@@ -42,6 +42,5 @@ module "firebase" {
 
 #   project_id = var.project_id
 #   project_number = var.project_number
-#   app_installation_id = var.app_installation_id
 #   github_token_version = module.secret.google_secret_manager_secret_version.github_token_version
 # }

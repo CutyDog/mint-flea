@@ -13,6 +13,8 @@ resource "google_project_service" "services" {
   disable_dependent_services = true
 }
 
+
+// account database
 resource "google_secret_manager_secret" "account_db_url" {
   project   = var.project_id
   secret_id = "neon-account-db-url"
@@ -29,6 +31,8 @@ resource "google_secret_manager_secret_version" "account_db_url_version" {
   secret_data = var.neon_account_database_url
 }
 
+
+// github token
 resource "google_secret_manager_secret" "github_token" {
   project   = var.project_id
   secret_id = "github-token"
