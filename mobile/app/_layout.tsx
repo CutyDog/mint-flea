@@ -1,12 +1,14 @@
 import { Stack } from "expo-router";
-import { AuthProvider } from "../hooks";
+import { AuthProvider, ApolloWrapper } from "../hooks";
 import { ThemeProvider } from "../theme";
 
 export default function RootLayout() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Stack />
+        <ApolloWrapper>
+          <Stack />
+        </ApolloWrapper>
       </AuthProvider>
     </ThemeProvider>
   )

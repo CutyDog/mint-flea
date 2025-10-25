@@ -1,4 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef
+} from 'react';
 import { useRouter, useSegments } from 'expo-router';
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import {
@@ -13,13 +21,15 @@ import {
 import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
 
 // // Google Sign-In設定
-// GoogleSignin.configure({
-//   webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
-//   iosClientId: process.env.GOOGLE_IOS_CLIENT_ID,
-// });
+GoogleSignin.configure({
+  webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
+  // iosClientId: process.env.GOOGLE_IOS_CLIENT_ID,
+  iosClientId: "1053499135011-8ll3ktalia54p8ksuph0ute3pi3sgmmv.apps.googleusercontent.com",
+});
 
 interface AuthContextType {
   user: FirebaseAuthTypes.User | null;
+  getIdToken: () => Promise<string | null>;
   loading: boolean;
   error: string;
   signInWithGoogle: () => Promise<string | undefined>;
@@ -61,6 +71,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const clearError = () => {
     setError("");
   };
+
+  // トークンキャッシュ
+  const tokenCache = useRef<{ token: string | null; expiresAt: number }>({
+    token: null,
+    expiresAt: 0,
+  });
 
   // 認証状態の監視
   useEffect(() => {
@@ -139,8 +155,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const getIdToken = useCallback(async (): Promise<string | null> => {
+    if (!user) {
+      return null;
+    }
+
+    try {
+      const now = Date.now();
+
+      // キャッシュされたトークンが有効な場合はそれを返す
+      if (tokenCache.current.token && now < tokenCache.current.expiresAt) {
+        return tokenCache.current.token;
+      }
+
+      // トークンを取得（強制更新は行わない）
+      const token = await user.getIdToken(false);
+
+      if (token) {
+        // トークンの有効期限を設定
+        tokenCache.current = {
+          token,
+          expiresAt: now + 55 * 60 * 1000, // 55分後に期限切れ
+        };
+      }
+
+      return token;
+    } catch (e: any) {
+      setError(e.message);
+      // エラー時はキャッシュをクリア
+      tokenCache.current = { token: null, expiresAt: 0 };
+      return null;
+    }
+  }, [user]);
+
   const value = {
     user,
+    getIdToken,
     loading,
     error,
     signInWithGoogle,
