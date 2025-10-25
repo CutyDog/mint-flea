@@ -7,12 +7,12 @@ package graph
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/CutyDog/mint-flea/services/gateway/auth"
 	"github.com/CutyDog/mint-flea/services/gateway/graph/model"
 )
 
+// Me is the resolver for the me field.
 func (r *queryResolver) Me(ctx context.Context) (*model.Account, error) {
 	uid, err := auth.GetUserUIDFromContext(ctx)
 	if err != nil {
@@ -21,36 +21,8 @@ func (r *queryResolver) Me(ctx context.Context) (*model.Account, error) {
 
 	// Get account from gRPC service
 	account, err := r.AccountClient.GetAccountByUID(ctx, uid)
-	log.Printf("account: %+v", account)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get account: %w", err)
-	}
-
-	// Check if account is nil
-	if account == nil {
-		return nil, fmt.Errorf("account not found")
-	}
-
-	// Convert protobuf to GraphQL model
-	return &model.Account{
-		ID:        fmt.Sprintf("%d", account.Id),
-		UID:       account.Uid,
-		CreatedAt: account.CreatedAt.AsTime().Format("2006-01-02T15:04:05Z07:00"),
-		UpdatedAt: account.UpdatedAt.AsTime().Format("2006-01-02T15:04:05Z07:00"),
-	}, nil
-}
-
-// Account is the resolver for the account field.
-func (r *queryResolver) Account(ctx context.Context, uid string) (*model.Account, error) {
-	// Get account from gRPC service
-	account, err := r.AccountClient.GetAccountByUID(ctx, uid)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get account: %w", err)
-	}
-
-	// Check if account is nil
-	if account == nil {
-		return nil, fmt.Errorf("account not found")
 	}
 
 	// Convert protobuf to GraphQL model

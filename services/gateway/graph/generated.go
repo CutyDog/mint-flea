@@ -54,12 +54,12 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Account func(childComplexity int, uid string) int
+		Me func(childComplexity int) int
 	}
 }
 
 type QueryResolver interface {
-	Account(ctx context.Context, uid string) (*model.Account, error)
+	Me(ctx context.Context) (*model.Account, error)
 }
 
 type executableSchema struct {
@@ -106,17 +106,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Account.UpdatedAt(childComplexity), true
 
-	case "Query.account":
-		if e.complexity.Query.Account == nil {
+	case "Query.me":
+		if e.complexity.Query.Me == nil {
 			break
 		}
 
-		args, err := ec.field_Query_account_args(ctx, rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.Account(childComplexity, args["uid"].(string)), true
+		return e.complexity.Query.Me(childComplexity), true
 
 	}
 	return 0, false
@@ -235,17 +230,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		return nil, err
 	}
 	args["name"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_account_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "uid", ec.unmarshalNString2string)
-	if err != nil {
-		return nil, err
-	}
-	args["uid"] = arg0
 	return args, nil
 }
 
@@ -417,15 +401,14 @@ func (ec *executionContext) fieldContext_Account_updatedAt(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_account(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Query_me(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Query_account,
+		ec.fieldContext_Query_me,
 		func(ctx context.Context) (any, error) {
-			fc := graphql.GetFieldContext(ctx)
-			return ec.resolvers.Query().Account(ctx, fc.Args["uid"].(string))
+			return ec.resolvers.Query().Me(ctx)
 		},
 		nil,
 		ec.marshalOAccount2ᚖgithubᚗcomᚋCutyDogᚋmintᚑfleaᚋservicesᚋgatewayᚋgraphᚋmodelᚐAccount,
@@ -434,7 +417,7 @@ func (ec *executionContext) _Query_account(ctx context.Context, field graphql.Co
 	)
 }
 
-func (ec *executionContext) fieldContext_Query_account(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_me(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -453,17 +436,6 @@ func (ec *executionContext) fieldContext_Query_account(ctx context.Context, fiel
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Account", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_account_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -2103,7 +2075,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "account":
+		case "me":
 			field := field
 
 			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
@@ -2112,7 +2084,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_account(ctx, field)
+				res = ec._Query_me(ctx, field)
 				return res
 			}
 
