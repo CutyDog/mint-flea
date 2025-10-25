@@ -1,0 +1,4 @@
+type Query {
+  me: Account
+  account(uid: String!): Account
+}

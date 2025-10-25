@@ -1,0 +1,6 @@
+type Account {
+  id: ID!
+  uid: String!
+  createdAt: String!
+  updatedAt: String!
+}
