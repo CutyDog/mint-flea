@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"firebase.google.com/go/v4/auth"
+	"github.com/CutyDog/mint-flea/services/gateway/errors"
 )
 
 type AuthMiddleware struct {
@@ -49,17 +50,18 @@ func (am *AuthMiddleware) AuthMiddleware(next http.Handler) http.Handler {
 func (am *AuthMiddleware) handleAuth(r *http.Request, w http.ResponseWriter, next http.Handler) {
 	authHeader := r.Header.Get("Authorization")
 	if authHeader == "" {
-		log.Printf("No authorization header found, proceeding as anonymous user")
-		next.ServeHTTP(w, r)
+		// 認証ヘッダーがない場合は認証エラーを返す
+		log.Printf("No authorization header found, authentication required")
+		errors.SendUnauthenticatedError(w, "Authentication required")
 		return
 	}
 
 	// JWTを検証
 	token, err := am.VerifyIDToken(r.Context(), authHeader)
 	if err != nil {
-		log.Printf("Failed to verify ID token: %v", err)
-		// JWTが無効な場合は匿名ユーザーとして処理
-		next.ServeHTTP(w, r)
+		// JWTが無効な場合は認証エラーを返す
+		log.Printf("Unauthorized: Invalid token: %v", err)
+		errors.SendUnauthenticatedError(w, "Invalid token")
 		return
 	}
 

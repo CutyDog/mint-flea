@@ -1,0 +1,9 @@
+package errors
+
+// GraphQL error codes
+const (
+	UNAUTHENTICATED = "UNAUTHENTICATED"
+	FORBIDDEN       = "FORBIDDEN"
+	BAD_REQUEST     = "BAD_REQUEST"
+	INTERNAL_ERROR  = "INTERNAL_ERROR"
+)
