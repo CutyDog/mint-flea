@@ -13,6 +13,8 @@ services:
     environment:
       - PORT=8080
       - ACCOUNT_SERVICE_ADDR=account:9090
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+      - FIREBASE_SERVICE_ACCOUNT_PATH=./google/firebase-adminsdk.json
   account:
     build:
       context: .

@@ -1,6 +1,8 @@
 package graph
 
-import "github.com/CutyDog/mint-flea/services/gateway/client"
+import (
+	"github.com/CutyDog/mint-flea/services/gateway/client"
+)
 
 // This file will not be regenerated automatically.
 //

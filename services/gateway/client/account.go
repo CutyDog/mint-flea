@@ -33,8 +33,8 @@ func (c *AccountClient) Close() error {
 }
 
 func (c *AccountClient) GetAccountByUID(ctx context.Context, uid string) (*accountv1.Account, error) {
-	resp, err := c.client.GetAccount(ctx, &accountv1.GetAccountRequest{
-		Key: &accountv1.GetAccountRequest_Uid{
+	resp, err := c.client.LoginAccount(ctx, &accountv1.LoginAccountRequest{
+		Key: &accountv1.LoginAccountRequest_Uid{
 			Uid: uid,
 		},
 	})

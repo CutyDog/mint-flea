@@ -1,2 +1,5 @@
 # Generated proto files
 proto/gen/
+
+# env files
+.env

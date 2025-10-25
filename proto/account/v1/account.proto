@@ -6,17 +6,16 @@ option go_package = "github.com/CutyDog/mint-flea/proto/account/v1;accountv1";
 import "google/protobuf/timestamp.proto";
 
 service AccountService {
-  rpc GetAccount(GetAccountRequest) returns (GetAccountResponse);
+  rpc LoginAccount(LoginAccountRequest) returns (LoginAccountResponse);
 }
 
-message GetAccountRequest {
+message LoginAccountRequest {
   oneof key {
-    int64 id   = 1;  // users.id (BIGINT)
-    string uid = 2;  // Firebase Auth UID
+    string uid = 1;  // Firebase Auth UID
   }
 }
 
-message GetAccountResponse {
+message LoginAccountResponse {
   Account account = 1;
 }
 

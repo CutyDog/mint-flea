@@ -49,13 +49,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "@react-native-firebase/app",
     "@react-native-firebase/auth",
     "@react-native-firebase/crashlytics",
-    "@react-native-google-signin/google-signin",
-    // [
-    //   "@react-native-google-signin/google-signin",
-    //   {
-    //     iosUrlScheme: process.env.GOOGLE_IOS_REVERSED_CLIENT_ID
-    //   }
-    // ],
+    [
+      "@react-native-google-signin/google-signin",
+      {
+        iosUrlScheme: process.env.GOOGLE_SIGNIN_IOS_URL_SCHEME
+      }
+    ],
     // [
     //   "react-native-google-mobile-ads",
     //   {
