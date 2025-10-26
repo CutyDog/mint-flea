@@ -10,4 +10,5 @@ import (
 
 type Resolver struct {
 	AccountClient *client.AccountClient
+	WalletClient  *client.WalletClient
 }

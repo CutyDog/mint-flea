@@ -10,6 +10,7 @@ type Account {
 
 type Wallet {
   id: ID!
+  accountId: ID!
   address: String!
   chainId: Int!
   isMain: Boolean!

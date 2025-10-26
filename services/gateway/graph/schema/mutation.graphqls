@@ -1,7 +1,7 @@
 type Mutation {
-  LinkWallet(input: LinkWalletInput!): Wallet!
-  UnlinkWallet(input: UnlinkWalletInput!): Boolean!
-  SetMainWallet(input: SetMainWalletInput!): Wallet!
+  linkWallet(input: LinkWalletInput!): Wallet!
+  unlinkWallet(input: UnlinkWalletInput!): Boolean!
+  setMainWallet(input: SetMainWalletInput!): Wallet!
 }
 
 input LinkWalletInput {

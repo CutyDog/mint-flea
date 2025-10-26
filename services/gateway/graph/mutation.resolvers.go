@@ -7,23 +7,94 @@ package graph
 import (
 	"context"
 	"fmt"
+	"strconv"
 
+	"github.com/CutyDog/mint-flea/services/gateway/auth"
 	"github.com/CutyDog/mint-flea/services/gateway/graph/model"
 )
 
 // LinkWallet is the resolver for the LinkWallet field.
 func (r *mutationResolver) LinkWallet(ctx context.Context, input model.LinkWalletInput) (*model.Wallet, error) {
-	panic(fmt.Errorf("not implemented: LinkWallet - LinkWallet"))
+	uid, err := auth.GetUserUIDFromContext(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user UID: %w", err)
+	}
+
+	account, err := r.AccountClient.GetAccountByUID(ctx, uid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get account: %w", err)
+	}
+
+	wallet, err := r.WalletClient.LinkWallet(ctx, account.Id, input.Address, int64(input.ChainID), input.IsMain)
+	if err != nil {
+		return nil, fmt.Errorf("failed to link wallet: %w", err)
+	}
+
+	return &model.Wallet{
+		ID:        fmt.Sprintf("%d", wallet.Id),
+		Address:   wallet.Address,
+		ChainID:   int32(wallet.ChainId),
+		IsMain:    wallet.IsMain,
+		CreatedAt: wallet.CreatedAt.AsTime().Format("2006-01-02T15:04:05Z07:00"),
+		UpdatedAt: wallet.UpdatedAt.AsTime().Format("2006-01-02T15:04:05Z07:00"),
+	}, nil
 }
 
 // UnlinkWallet is the resolver for the UnlinkWallet field.
 func (r *mutationResolver) UnlinkWallet(ctx context.Context, input model.UnlinkWalletInput) (bool, error) {
-	panic(fmt.Errorf("not implemented: UnlinkWallet - UnlinkWallet"))
+	uid, err := auth.GetUserUIDFromContext(ctx)
+	if err != nil {
+		return false, fmt.Errorf("failed to get user UID: %w", err)
+	}
+
+	account, err := r.AccountClient.GetAccountByUID(ctx, uid)
+	if err != nil {
+		return false, fmt.Errorf("failed to get account: %w", err)
+	}
+
+	walletId, err := strconv.ParseInt(input.WalletID, 10, 64)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse wallet ID: %w", err)
+	}
+
+	success, err := r.WalletClient.UnlinkWallet(ctx, account.Id, walletId)
+	if err != nil {
+		return false, fmt.Errorf("failed to unlink wallet: %w", err)
+	}
+
+	return success, nil
 }
 
 // SetMainWallet is the resolver for the SetMainWallet field.
 func (r *mutationResolver) SetMainWallet(ctx context.Context, input model.SetMainWalletInput) (*model.Wallet, error) {
-	panic(fmt.Errorf("not implemented: SetMainWallet - SetMainWallet"))
+	uid, err := auth.GetUserUIDFromContext(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user UID: %w", err)
+	}
+
+	account, err := r.AccountClient.GetAccountByUID(ctx, uid)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get account: %w", err)
+	}
+
+	walletId, err := strconv.ParseInt(input.WalletID, 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse wallet ID: %w", err)
+	}
+
+	wallet, err := r.WalletClient.SetMainWallet(ctx, account.Id, walletId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to set main wallet: %w", err)
+	}
+
+	return &model.Wallet{
+		ID:        fmt.Sprintf("%d", wallet.Id),
+		Address:   wallet.Address,
+		ChainID:   int32(wallet.ChainId),
+		IsMain:    wallet.IsMain,
+		CreatedAt: wallet.CreatedAt.AsTime().Format("2006-01-02T15:04:05Z07:00"),
+		UpdatedAt: wallet.UpdatedAt.AsTime().Format("2006-01-02T15:04:05Z07:00"),
+	}, nil
 }
 
 // Mutation returns MutationResolver implementation.

@@ -18,11 +18,13 @@ func main() {
 
 	// Initialize repository
 	accountRepo := repo.NewAccountRepository(db.DB)
+	walletRepo := repo.NewWalletRepository(db.DB)
 
 	// Setup gRPC server
 	addr := os.Getenv("GRPC_ADDR")
 	s := grpc.NewServer()
 	accountv1.RegisterAccountServiceServer(s, server.NewAccountServer(accountRepo))
+	accountv1.RegisterWalletServiceServer(s, server.NewWalletServer(walletRepo))
 	reflection.Register(s)
 
 	lis, err := net.Listen("tcp", addr)

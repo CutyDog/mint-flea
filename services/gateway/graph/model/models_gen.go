@@ -33,6 +33,7 @@ type UnlinkWalletInput struct {
 
 type Wallet struct {
 	ID        string   `json:"id"`
+	AccountID string   `json:"accountId"`
 	Address   string   `json:"address"`
 	ChainID   int32    `json:"chainId"`
 	IsMain    bool     `json:"isMain"`

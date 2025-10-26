@@ -39,8 +39,10 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	Account() AccountResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
+	Wallet() WalletResolver
 }
 
 type DirectiveRoot struct {
@@ -68,6 +70,7 @@ type ComplexityRoot struct {
 
 	Wallet struct {
 		Account   func(childComplexity int) int
+		AccountID func(childComplexity int) int
 		Address   func(childComplexity int) int
 		ChainID   func(childComplexity int) int
 		CreatedAt func(childComplexity int) int
@@ -77,6 +80,10 @@ type ComplexityRoot struct {
 	}
 }
 
+type AccountResolver interface {
+	Wallets(ctx context.Context, obj *model.Account) ([]*model.Wallet, error)
+	MainWallet(ctx context.Context, obj *model.Account) (*model.Wallet, error)
+}
 type MutationResolver interface {
 	LinkWallet(ctx context.Context, input model.LinkWalletInput) (*model.Wallet, error)
 	UnlinkWallet(ctx context.Context, input model.UnlinkWalletInput) (bool, error)
@@ -84,6 +91,9 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	Me(ctx context.Context) (*model.Account, error)
+}
+type WalletResolver interface {
+	Account(ctx context.Context, obj *model.Wallet) (*model.Account, error)
 }
 
 type executableSchema struct {
@@ -142,34 +152,34 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Account.Wallets(childComplexity), true
 
-	case "Mutation.LinkWallet":
+	case "Mutation.linkWallet":
 		if e.complexity.Mutation.LinkWallet == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_LinkWallet_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_linkWallet_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.LinkWallet(childComplexity, args["input"].(model.LinkWalletInput)), true
-	case "Mutation.SetMainWallet":
+	case "Mutation.setMainWallet":
 		if e.complexity.Mutation.SetMainWallet == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_SetMainWallet_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_setMainWallet_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
 		return e.complexity.Mutation.SetMainWallet(childComplexity, args["input"].(model.SetMainWalletInput)), true
-	case "Mutation.UnlinkWallet":
+	case "Mutation.unlinkWallet":
 		if e.complexity.Mutation.UnlinkWallet == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_UnlinkWallet_args(ctx, rawArgs)
+		args, err := ec.field_Mutation_unlinkWallet_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
@@ -189,6 +199,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Wallet.Account(childComplexity), true
+	case "Wallet.accountId":
+		if e.complexity.Wallet.AccountID == nil {
+			break
+		}
+
+		return e.complexity.Wallet.AccountID(childComplexity), true
 	case "Wallet.address":
 		if e.complexity.Wallet.Address == nil {
 			break
@@ -355,7 +371,7 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_LinkWallet_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) field_Mutation_linkWallet_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNLinkWalletInput2githubᚗcomᚋCutyDogᚋmintᚑfleaᚋservicesᚋgatewayᚋgraphᚋmodelᚐLinkWalletInput)
@@ -366,7 +382,7 @@ func (ec *executionContext) field_Mutation_LinkWallet_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_SetMainWallet_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) field_Mutation_setMainWallet_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNSetMainWalletInput2githubᚗcomᚋCutyDogᚋmintᚑfleaᚋservicesᚋgatewayᚋgraphᚋmodelᚐSetMainWalletInput)
@@ -377,7 +393,7 @@ func (ec *executionContext) field_Mutation_SetMainWallet_args(ctx context.Contex
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_UnlinkWallet_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) field_Mutation_unlinkWallet_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNUnlinkWalletInput2githubᚗcomᚋCutyDogᚋmintᚑfleaᚋservicesᚋgatewayᚋgraphᚋmodelᚐUnlinkWalletInput)
@@ -574,7 +590,7 @@ func (ec *executionContext) _Account_wallets(ctx context.Context, field graphql.
 		field,
 		ec.fieldContext_Account_wallets,
 		func(ctx context.Context) (any, error) {
-			return obj.Wallets, nil
+			return ec.resolvers.Account().Wallets(ctx, obj)
 		},
 		nil,
 		ec.marshalNWallet2ᚕᚖgithubᚗcomᚋCutyDogᚋmintᚑfleaᚋservicesᚋgatewayᚋgraphᚋmodelᚐWalletᚄ,
@@ -587,12 +603,14 @@ func (ec *executionContext) fieldContext_Account_wallets(_ context.Context, fiel
 	fc = &graphql.FieldContext{
 		Object:     "Account",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Wallet_id(ctx, field)
+			case "accountId":
+				return ec.fieldContext_Wallet_accountId(ctx, field)
 			case "address":
 				return ec.fieldContext_Wallet_address(ctx, field)
 			case "chainId":
@@ -619,7 +637,7 @@ func (ec *executionContext) _Account_mainWallet(ctx context.Context, field graph
 		field,
 		ec.fieldContext_Account_mainWallet,
 		func(ctx context.Context) (any, error) {
-			return obj.MainWallet, nil
+			return ec.resolvers.Account().MainWallet(ctx, obj)
 		},
 		nil,
 		ec.marshalOWallet2ᚖgithubᚗcomᚋCutyDogᚋmintᚑfleaᚋservicesᚋgatewayᚋgraphᚋmodelᚐWallet,
@@ -632,12 +650,14 @@ func (ec *executionContext) fieldContext_Account_mainWallet(_ context.Context, f
 	fc = &graphql.FieldContext{
 		Object:     "Account",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Wallet_id(ctx, field)
+			case "accountId":
+				return ec.fieldContext_Wallet_accountId(ctx, field)
 			case "address":
 				return ec.fieldContext_Wallet_address(ctx, field)
 			case "chainId":
@@ -657,12 +677,12 @@ func (ec *executionContext) fieldContext_Account_mainWallet(_ context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_LinkWallet(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_linkWallet(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Mutation_LinkWallet,
+		ec.fieldContext_Mutation_linkWallet,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Mutation().LinkWallet(ctx, fc.Args["input"].(model.LinkWalletInput))
@@ -674,7 +694,7 @@ func (ec *executionContext) _Mutation_LinkWallet(ctx context.Context, field grap
 	)
 }
 
-func (ec *executionContext) fieldContext_Mutation_LinkWallet(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_linkWallet(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -684,6 +704,8 @@ func (ec *executionContext) fieldContext_Mutation_LinkWallet(ctx context.Context
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Wallet_id(ctx, field)
+			case "accountId":
+				return ec.fieldContext_Wallet_accountId(ctx, field)
 			case "address":
 				return ec.fieldContext_Wallet_address(ctx, field)
 			case "chainId":
@@ -707,19 +729,19 @@ func (ec *executionContext) fieldContext_Mutation_LinkWallet(ctx context.Context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_LinkWallet_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_linkWallet_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_UnlinkWallet(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_unlinkWallet(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Mutation_UnlinkWallet,
+		ec.fieldContext_Mutation_unlinkWallet,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Mutation().UnlinkWallet(ctx, fc.Args["input"].(model.UnlinkWalletInput))
@@ -731,7 +753,7 @@ func (ec *executionContext) _Mutation_UnlinkWallet(ctx context.Context, field gr
 	)
 }
 
-func (ec *executionContext) fieldContext_Mutation_UnlinkWallet(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_unlinkWallet(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -748,19 +770,19 @@ func (ec *executionContext) fieldContext_Mutation_UnlinkWallet(ctx context.Conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_UnlinkWallet_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_unlinkWallet_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_SetMainWallet(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_setMainWallet(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
 		ec.OperationContext,
 		field,
-		ec.fieldContext_Mutation_SetMainWallet,
+		ec.fieldContext_Mutation_setMainWallet,
 		func(ctx context.Context) (any, error) {
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Mutation().SetMainWallet(ctx, fc.Args["input"].(model.SetMainWalletInput))
@@ -772,7 +794,7 @@ func (ec *executionContext) _Mutation_SetMainWallet(ctx context.Context, field g
 	)
 }
 
-func (ec *executionContext) fieldContext_Mutation_SetMainWallet(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_setMainWallet(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -782,6 +804,8 @@ func (ec *executionContext) fieldContext_Mutation_SetMainWallet(ctx context.Cont
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_Wallet_id(ctx, field)
+			case "accountId":
+				return ec.fieldContext_Wallet_accountId(ctx, field)
 			case "address":
 				return ec.fieldContext_Wallet_address(ctx, field)
 			case "chainId":
@@ -805,7 +829,7 @@ func (ec *executionContext) fieldContext_Mutation_SetMainWallet(ctx context.Cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_SetMainWallet_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_setMainWallet_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -992,6 +1016,35 @@ func (ec *executionContext) fieldContext_Wallet_id(_ context.Context, field grap
 	return fc, nil
 }
 
+func (ec *executionContext) _Wallet_accountId(ctx context.Context, field graphql.CollectedField, obj *model.Wallet) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Wallet_accountId,
+		func(ctx context.Context) (any, error) {
+			return obj.AccountID, nil
+		},
+		nil,
+		ec.marshalNID2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Wallet_accountId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Wallet",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Wallet_address(ctx context.Context, field graphql.CollectedField, obj *model.Wallet) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1144,7 +1197,7 @@ func (ec *executionContext) _Wallet_account(ctx context.Context, field graphql.C
 		field,
 		ec.fieldContext_Wallet_account,
 		func(ctx context.Context) (any, error) {
-			return obj.Account, nil
+			return ec.resolvers.Wallet().Account(ctx, obj)
 		},
 		nil,
 		ec.marshalNAccount2ᚖgithubᚗcomᚋCutyDogᚋmintᚑfleaᚋservicesᚋgatewayᚋgraphᚋmodelᚐAccount,
@@ -1157,8 +1210,8 @@ func (ec *executionContext) fieldContext_Wallet_account(_ context.Context, field
 	fc = &graphql.FieldContext{
 		Object:     "Wallet",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -2743,30 +2796,92 @@ func (ec *executionContext) _Account(ctx context.Context, sel ast.SelectionSet, 
 		case "id":
 			out.Values[i] = ec._Account_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "uid":
 			out.Values[i] = ec._Account_uid(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "createdAt":
 			out.Values[i] = ec._Account_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "updatedAt":
 			out.Values[i] = ec._Account_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "wallets":
-			out.Values[i] = ec._Account_wallets(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Account_wallets(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "mainWallet":
-			out.Values[i] = ec._Account_mainWallet(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Account_mainWallet(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2809,23 +2924,23 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "LinkWallet":
+		case "linkWallet":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_LinkWallet(ctx, field)
+				return ec._Mutation_linkWallet(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "UnlinkWallet":
+		case "unlinkWallet":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_UnlinkWallet(ctx, field)
+				return ec._Mutation_unlinkWallet(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "SetMainWallet":
+		case "setMainWallet":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_SetMainWallet(ctx, field)
+				return ec._Mutation_setMainWallet(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -2936,38 +3051,74 @@ func (ec *executionContext) _Wallet(ctx context.Context, sel ast.SelectionSet, o
 		case "id":
 			out.Values[i] = ec._Wallet_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
+			}
+		case "accountId":
+			out.Values[i] = ec._Wallet_accountId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "address":
 			out.Values[i] = ec._Wallet_address(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "chainId":
 			out.Values[i] = ec._Wallet_chainId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "isMain":
 			out.Values[i] = ec._Wallet_isMain(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "createdAt":
 			out.Values[i] = ec._Wallet_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "updatedAt":
 			out.Values[i] = ec._Wallet_updatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "account":
-			out.Values[i] = ec._Wallet_account(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Wallet_account(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3325,6 +3476,10 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
+
+func (ec *executionContext) marshalNAccount2githubᚗcomᚋCutyDogᚋmintᚑfleaᚋservicesᚋgatewayᚋgraphᚋmodelᚐAccount(ctx context.Context, sel ast.SelectionSet, v model.Account) graphql.Marshaler {
+	return ec._Account(ctx, sel, &v)
+}
 
 func (ec *executionContext) marshalNAccount2ᚖgithubᚗcomᚋCutyDogᚋmintᚑfleaᚋservicesᚋgatewayᚋgraphᚋmodelᚐAccount(ctx context.Context, sel ast.SelectionSet, v *model.Account) graphql.Marshaler {
 	if v == nil {
