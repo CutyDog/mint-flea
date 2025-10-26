@@ -1,0 +1,19 @@
+type Mutation {
+  LinkWallet(input: LinkWalletInput!): Wallet!
+  UnlinkWallet(input: UnlinkWalletInput!): Boolean!
+  SetMainWallet(input: SetMainWalletInput!): Wallet!
+}
+
+input LinkWalletInput {
+  address: String!
+  chainId: Int!
+  isMain: Boolean!
+}
+
+input UnlinkWalletInput {
+  walletId: ID!
+}
+
+input SetMainWalletInput {
+  walletId: ID!
+}
