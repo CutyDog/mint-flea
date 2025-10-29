@@ -21,8 +21,38 @@ export type Account = {
   __typename?: 'Account';
   createdAt: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  mainWallet?: Maybe<Wallet>;
   uid: Scalars['String']['output'];
   updatedAt: Scalars['String']['output'];
+  wallets: Array<Wallet>;
+};
+
+export type LinkWalletInput = {
+  address: Scalars['String']['input'];
+  chainId: Scalars['Int']['input'];
+  isMain: Scalars['Boolean']['input'];
+};
+
+export type Mutation = {
+  __typename?: 'Mutation';
+  linkWallet: Wallet;
+  setMainWallet: Wallet;
+  unlinkWallet: Scalars['Boolean']['output'];
+};
+
+
+export type MutationLinkWalletArgs = {
+  input: LinkWalletInput;
+};
+
+
+export type MutationSetMainWalletArgs = {
+  input: SetMainWalletInput;
+};
+
+
+export type MutationUnlinkWalletArgs = {
+  input: UnlinkWalletInput;
 };
 
 export type Query = {
@@ -30,12 +60,52 @@ export type Query = {
   me?: Maybe<Account>;
 };
 
+export type SetMainWalletInput = {
+  walletId: Scalars['ID']['input'];
+};
+
+export type UnlinkWalletInput = {
+  walletId: Scalars['ID']['input'];
+};
+
+export type Wallet = {
+  __typename?: 'Wallet';
+  account: Account;
+  accountId: Scalars['ID']['output'];
+  address: Scalars['String']['output'];
+  chainId: Scalars['Int']['output'];
+  createdAt: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isMain: Scalars['Boolean']['output'];
+  updatedAt: Scalars['String']['output'];
+};
+
+export type LinkWalletMutationVariables = Exact<{
+  input: LinkWalletInput;
+}>;
+
+
+export type LinkWalletMutation = { __typename?: 'Mutation', linkWallet: { __typename?: 'Wallet', id: string, accountId: string, address: string, chainId: number, isMain: boolean, createdAt: string, updatedAt: string } };
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MeQuery = { __typename?: 'Query', me?: { __typename?: 'Account', id: string, uid: string, createdAt: string, updatedAt: string } | null };
 
 
+export const LinkWalletDocument = gql`
+    mutation LinkWallet($input: LinkWalletInput!) {
+  linkWallet(input: $input) {
+    id
+    accountId
+    address
+    chainId
+    isMain
+    createdAt
+    updatedAt
+  }
+}
+    `;
 export const MeDocument = gql`
     query Me {
   me {
@@ -54,6 +124,9 @@ const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationTy
 
 export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
+    LinkWallet(variables: LinkWalletMutationVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<LinkWalletMutation> {
+      return withWrapper((wrappedRequestHeaders) => client.request<LinkWalletMutation>({ document: LinkWalletDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'LinkWallet', 'mutation', variables);
+    },
     Me(variables?: MeQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<MeQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<MeQuery>({ document: MeDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'Me', 'query', variables);
     }

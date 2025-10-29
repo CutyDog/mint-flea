@@ -29,6 +29,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="com.googleusercontent.apps.1053499135011-0du0opg6p3a7tsam4kk6ip0mugbge28r"/>
         <data android:scheme="exp+mint-flea"/>
+        <data android:scheme="mintflea"/>
       </intent-filter>
     </activity>
   </application>

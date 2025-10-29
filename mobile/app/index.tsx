@@ -1,7 +1,8 @@
 import { Text, View } from "react-native";
 import { useQuery } from "@apollo/client/react";
-import { MeDocument } from "../documents/queries/me";
-import { MeQuery } from "../types/graphql";
+import { MeDocument } from "@/documents";
+import { MeQuery } from "@/types/graphql";
+import { WalletHeaderBar } from "@/components/ui";
 
 export default function Index() {
   const { data, loading, error } = useQuery<MeQuery>(MeDocument);
@@ -9,14 +10,17 @@ export default function Index() {
   if (error) return <Text>Error: {error.message}</Text>;
 
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>{data?.me?.uid}</Text>
-    </View>
+    <>
+      <WalletHeaderBar />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Text>{data?.me?.uid}</Text>
+      </View>
+    </>
   );
 }
