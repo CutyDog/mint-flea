@@ -3,4 +3,19 @@ type Account {
   uid: String!
   createdAt: String!
   updatedAt: String!
+
+  wallets: [Wallet!]!
+  mainWallet: Wallet
+}
+
+type Wallet {
+  id: ID!
+  accountId: ID!
+  address: String!
+  chainId: Int!
+  isMain: Boolean!
+  createdAt: String!
+  updatedAt: String!
+
+  account: Account!
 }

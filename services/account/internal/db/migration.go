@@ -18,5 +18,14 @@ func getMigrations() []*gormigrate.Migration {
 				return tx.Migrator().DropTable(&model.Account{})
 			},
 		},
+		{
+			ID: "202510261400_create_account_wallets",
+			Migrate: func(tx *gorm.DB) error {
+				return tx.AutoMigrate(&model.Wallet{})
+			},
+			Rollback: func(tx *gorm.DB) error {
+				return tx.Migrator().DropTable(&model.Wallet{})
+			},
+		},
 	}
 }

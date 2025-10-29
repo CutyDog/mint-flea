@@ -30,6 +30,12 @@ func main() {
 	}
 	defer accountClient.Close()
 
+	walletClient, err := client.NewWalletClient(accountServiceAddr)
+	if err != nil {
+		log.Fatalf("failed to create wallet client: %v", err)
+	}
+	defer walletClient.Close()
+
 	// AuthMiddlewareを初期化
 	authMiddleware, err := auth.NewAuthMiddleware()
 	if err != nil {
@@ -40,6 +46,7 @@ func main() {
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
 		Resolvers: &graph.Resolver{
 			AccountClient: accountClient,
+			WalletClient:  walletClient,
 		},
 	}))
 

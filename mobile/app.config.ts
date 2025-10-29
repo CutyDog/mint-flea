@@ -12,12 +12,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   version: "1.0.0",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
-  scheme: "com.googleusercontent.apps.1053499135011-0du0opg6p3a7tsam4kk6ip0mugbge28r",
+  scheme: ["com.googleusercontent.apps.1053499135011-0du0opg6p3a7tsam4kk6ip0mugbge28r", "mintflea"],
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
   ios: {
     supportsTablet: true,
     bundleIdentifier: "com.cutydog.mint-flea",
+    associatedDomains: ["applinks:mintflea.com"],
     googleServicesFile: process.env.GOOGLE_SERVICES_INFO_PLIST ?? './GoogleService-Info.plist',
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
@@ -96,6 +97,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     router: {},
     eas: {
       projectId: "91e7199e-3fe1-4e6d-a9b5-cd2789800fcb"
-    }
+    },
+    googleSignIn: {
+      webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
+      iosClientId: process.env.GOOGLE_IOS_CLIENT_ID,
+    },
+    walletConnect: {
+      projectId: process.env.WALLETCONNECT_PROJECT_ID,
+    },
   }
 })

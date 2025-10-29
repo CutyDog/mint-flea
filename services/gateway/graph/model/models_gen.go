@@ -3,11 +3,41 @@
 package model
 
 type Account struct {
-	ID        string `json:"id"`
-	UID       string `json:"uid"`
-	CreatedAt string `json:"createdAt"`
-	UpdatedAt string `json:"updatedAt"`
+	ID         string    `json:"id"`
+	UID        string    `json:"uid"`
+	CreatedAt  string    `json:"createdAt"`
+	UpdatedAt  string    `json:"updatedAt"`
+	Wallets    []*Wallet `json:"wallets"`
+	MainWallet *Wallet   `json:"mainWallet,omitempty"`
+}
+
+type LinkWalletInput struct {
+	Address string `json:"address"`
+	ChainID int32  `json:"chainId"`
+	IsMain  bool   `json:"isMain"`
+}
+
+type Mutation struct {
 }
 
 type Query struct {
+}
+
+type SetMainWalletInput struct {
+	WalletID string `json:"walletId"`
+}
+
+type UnlinkWalletInput struct {
+	WalletID string `json:"walletId"`
+}
+
+type Wallet struct {
+	ID        string   `json:"id"`
+	AccountID string   `json:"accountId"`
+	Address   string   `json:"address"`
+	ChainID   int32    `json:"chainId"`
+	IsMain    bool     `json:"isMain"`
+	CreatedAt string   `json:"createdAt"`
+	UpdatedAt string   `json:"updatedAt"`
+	Account   *Account `json:"account"`
 }
