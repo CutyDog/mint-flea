@@ -1,5 +1,6 @@
 import "@walletconnect/react-native-compat";
 
+import Constants from 'expo-constants';
 import {
   createAppKit,
   bitcoin,
@@ -14,7 +15,7 @@ import { storage } from './StorageUtil';
 // You can use 'viem/chains' or define your own chains using `AppKitNetwork` type. Check Options/networks for more detailed info
 import { mainnet, polygon } from 'viem/chains';
 
-const projectId = process.env.WALLETCONNECT_PROJECT_ID!; // Obtain from https://dashboard.reown.com/
+const projectId = Constants.expoConfig?.extra?.walletConnect?.projectId!;
 
 const ethersAdapter = new EthersAdapter();
 const solanaAdapter = new SolanaAdapter();
@@ -27,7 +28,7 @@ export const appKit = createAppKit({
   adapters: [ethersAdapter, solanaAdapter, bitcoinAdapter],
   storage,
   extraConnectors: [
-    new PhantomConnector({ cluster: 'mainnet-beta' }) // Or 'devnet', 'testnet'
+    new PhantomConnector({ cluster: process.env.EXPO_PUBLIC_ENV === 'production' ? 'mainnet-beta' : 'devnet' }) // Or 'testnet'
   ],
 
   // Other AppKit options (e.g., metadata for your dApp)

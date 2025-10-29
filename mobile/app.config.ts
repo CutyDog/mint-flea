@@ -97,6 +97,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     router: {},
     eas: {
       projectId: "91e7199e-3fe1-4e6d-a9b5-cd2789800fcb"
-    }
+    },
+    googleSignIn: {
+      webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
+      iosClientId: process.env.GOOGLE_IOS_CLIENT_ID,
+    },
+    walletConnect: {
+      projectId: process.env.WALLETCONNECT_PROJECT_ID,
+    },
   }
 })

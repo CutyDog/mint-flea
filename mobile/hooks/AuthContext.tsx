@@ -19,11 +19,12 @@ import {
   createUserWithEmailAndPassword
 } from "@react-native-firebase/auth";
 import type { FirebaseAuthTypes } from "@react-native-firebase/auth";
+import Constants from 'expo-constants';
 
 // // Google Sign-In設定
 GoogleSignin.configure({
-  webClientId: process.env.GOOGLE_WEB_CLIENT_ID,
-  iosClientId: process.env.GOOGLE_IOS_CLIENT_ID,
+  webClientId: Constants.expoConfig?.extra?.googleSignIn?.webClientId,
+  iosClientId: Constants.expoConfig?.extra?.googleSignIn?.iosClientId,
 });
 
 interface AuthContextType {
